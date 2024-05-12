@@ -1,0 +1,52 @@
+
+/* Important part */
+
+body {
+  font-size: 13px;
+}
+
+
+.table>thead , .table>tbody , div.dt-container div.dt-info, pagination,
+.page-link, div.dt-container div.dt-length label, .card,
+.page-item.active .page-link, .btn, .breadcrumb-item {
+  font-size: 14px !important;
+}
+
+/* Important part */
+.modal-dialog{
+  overflow-y: initial !important
+}
+.modal-content{
+  min-height: 100vh !important;
+ }
+.modal-body{
+  max-height: calc(85vh - 10px) !important;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 18px;
+  line-height: 0px;
+}
+
+.modal-footer {
+  border-radius: 0;
+  bottom:0px;
+  position:absolute;
+  width:100%;
+}
+
+.row .required:after {
+  color: #d00;
+  font-family: 'FontAwesome';
+  font-weight: bold;
+  font-size: 18px;
+  content: "*";
+  top:4px;
+  position: absolute;
+  margin-left: 8px;
+}
+
+.fieldError{
+  font-size: 11px; color: red;'
+}
