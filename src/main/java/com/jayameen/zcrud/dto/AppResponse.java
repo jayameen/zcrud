@@ -32,7 +32,7 @@ public @Data class AppResponse<T> implements Serializable {
     private Long recordsFiltered;
 
     @JsonProperty("pages_total")
-    private Integer pagesTotal;
+    private Long pagesTotal;
 
     @JsonProperty("draw")
     private Long draw;

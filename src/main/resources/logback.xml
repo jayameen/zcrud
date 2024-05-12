@@ -38,7 +38,7 @@
         <appender-ref ref="Console" />
     </root>
 
-    <!-- LOG "net.xindus*" at TRACE level -->
+    <!-- LOG "com.jayameen*" at TRACE level -->
     <logger name="com.jayameen" level="trace" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />

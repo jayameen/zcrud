@@ -1,22 +1,18 @@
 package com.jayameen.zcrud.config;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
-import org.springframework.beans.factory.annotation.Value;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.ByteArrayInputStream;
-import java.util.Base64;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Madan KN
@@ -25,4 +21,31 @@ import java.util.Base64;
 @Configuration
 public class ApplicationBeanConfigurations {
 
+    @Bean("restTemplate")
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean("jacksonObjectMapper")
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+        mapper.configure(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID, true);
+        return mapper;
+    }
+
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.serializerByType(ObjectId.class, new ToStringSerializer());
+        return new MappingJackson2HttpMessageConverter(builder.build());
+    }
+
+    @Bean("httpHeaders")
+    public HttpHeaders getHttpHeaders() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return httpHeaders;
+    }
 }

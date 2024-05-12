@@ -1,13 +1,17 @@
 spring:
   application:
     name: zcrud
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
   servlet:
     multipart:
       max-file-size: 10000000
       max-request-size: 10000000
 
 server:
-  port: 8081
+  port: 8082
   servlet:
     context-path: /${spring.application.name}
 
@@ -16,4 +20,22 @@ spring:
   config:
     activate:
       on-profile: default
-:
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: zcrud
+      authentication-database: admin
+      username: root
+      password: Omsairam551979
+
+
+app:
+  database-type: mongo
+  static-min-url: ${server.servlet.context-path}/assets
+
+  mongo:
+    collections:
+      metadata: collections_metadata
+      files: files

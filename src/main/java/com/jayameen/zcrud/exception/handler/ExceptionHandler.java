@@ -32,7 +32,7 @@ public class ExceptionHandler {
     public ResponseEntity<?> nullPointerException(NullPointerException exception) {
         AppResponse appResponse = new AppResponse();
         appResponse.setStatus("error");
-        appResponse.setDescription(exception.getCause().toString());
+        appResponse.setDescription(exception.getMessage());
         return ResponseEntity.internalServerError().body(appResponse);
     }
 
