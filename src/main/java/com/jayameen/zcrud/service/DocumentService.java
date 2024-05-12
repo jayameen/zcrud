@@ -11,23 +11,23 @@ import java.util.List;
  */
 public interface DocumentService {
 
-    Page<Document> findAllDocument(long userID, String collectionName, int page, int size);
+    Page<Document> findAllDocument(String collectionName, int page, int size);
 
-    Page<Document> findAllDocumentForParentID(long userID, String collectionName, String parentID, int page, int size);
+    Page<Document> findAllDocumentForParentID(String collectionName, String parentID, int page, int size);
 
-    Page<Document> searchAllDocument(long userID, String collectionName, String tokens, int page, int size);
+    Page<Document> searchAllDocument(String collectionName, String tokens, int page, int size);
 
-    Document findDocumentByKeyValue(long userID, String collectionName, String key, String value);
+    Document findDocumentByKeyValue(String collectionName, String key, String value);
 
-    Document getDocument(long userID, String collectionName, String ID);
+    Document getDocument(String collectionName, String ID);
 
-    Document createDocument(long userID, String collectionName, Document object);
+    Document createDocument(String collectionName, Document object);
 
-    BulkWriteResult createBulkDocuments(long userID, String collectionName, List<Document> objectList);
+    BulkWriteResult createBulkDocuments(String collectionName, List<Document> objectList);
 
-    Document replaceDocument(long userID, String collectionName, String ID, Document document);
+    Document replaceDocument(String collectionName, String ID, Document document);
 
-    Document updateDocument(long userID, String collectionName, String ID, Document document);
+    Document updateDocument(String collectionName, String ID, Document document);
 
-    Long removeDocument(long userid, String collectionName, String ID);
+    Long removeDocument(String collectionName, String ID);
 }

@@ -33,9 +33,9 @@ public class ZCrudAPI extends BaseController {
                                      @RequestParam(value = "draw", required = false, defaultValue = "1") Long draw) {
         AppResponse<Document> myResponse = new AppResponse<>();
         if(StringUtils.isBlank(searchTokens)) {
-            handleListSuccess(myResponse, factory.getDocumentService().findAllDocument(getUserId(req), collectionName, page, size), draw);
+            handleListSuccess(myResponse, factory.getDocumentService().findAllDocument(collectionName, page-1, size), draw);
         }else{
-            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(getUserId(req), collectionName, searchTokens, page, size), draw);
+            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(collectionName, searchTokens, page-1, size), draw);
         }
         return ResponseEntity.ok(myResponse);
     }
@@ -43,14 +43,14 @@ public class ZCrudAPI extends BaseController {
     @GetMapping("/{collection}/{key}/{value}")
     public ResponseEntity<?> findAllByKeyAndValue(HttpServletRequest req, @PathVariable("collection") String collectionName,@PathVariable("key") String key,@PathVariable("value") String value) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        handleObjectSuccess(myResponse, factory.getDocumentService().findDocumentByKeyValue(getUserId(req), collectionName,key,value));
+        handleObjectSuccess(myResponse, factory.getDocumentService().findDocumentByKeyValue(collectionName,key,value));
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @GetMapping("/{collection}/{ID}")
     public ResponseEntity<?> getDocumentByID(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        handleObjectSuccess(myResponse, factory.getDocumentService().getDocument(getUserId(req), collectionName, ID));
+        handleObjectSuccess(myResponse, factory.getDocumentService().getDocument(collectionName, ID));
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,30 +61,28 @@ public class ZCrudAPI extends BaseController {
                                                @RequestParam(value = "s", required = false, defaultValue = "10") Short size,
                                                @RequestParam(value = "draw", required = false, defaultValue = "1") Long draw) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        handleListSuccess(myResponse, factory.getDocumentService().findAllDocumentForParentID(getUserId(req), collectionName, parentID, page, size), draw);
+        handleListSuccess(myResponse, factory.getDocumentService().findAllDocumentForParentID(collectionName, parentID, page-1, size), draw);
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @PostMapping("/{collection}")
     public ResponseEntity<?> createDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @RequestBody Document document) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        document.put("customerId", getUserId(req));
-        handleObjectSuccess(myResponse, factory.getDocumentService().createDocument(getUserId(req), collectionName, document));
+        handleObjectSuccess(myResponse, factory.getDocumentService().createDocument(collectionName, document));
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @PostMapping("/{collection}/bulk")
     public ResponseEntity<?> createBulkDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @RequestBody List<Document> documents) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        handleObjectSuccess(myResponse, factory.getDocumentService().createBulkDocuments(getUserId(req), collectionName, documents));
+        handleObjectSuccess(myResponse, factory.getDocumentService().createBulkDocuments(collectionName, documents));
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @PutMapping("/replace/{collection}/{ID}")
     public ResponseEntity<?> replaceDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID,  @RequestBody Document document) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        document.put("customerId", getUserId(req));
-        Document doc = factory.getDocumentService().replaceDocument(getUserId(req), collectionName, ID, document);
+        Document doc = factory.getDocumentService().replaceDocument(collectionName, ID, document);
         handleObjectSuccess(myResponse, doc);
         if(Objects.isNull(doc) || doc.size() < 1){
             myResponse.setStatus("error");
@@ -96,8 +94,7 @@ public class ZCrudAPI extends BaseController {
     @PutMapping("/update/{collection}/{ID}")
     public ResponseEntity<?> updateDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID,  @RequestBody Document document) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        document.put("customerId", getUserId(req));
-        Document doc = factory.getDocumentService().updateDocument(getUserId(req), collectionName, ID, document);
+        Document doc = factory.getDocumentService().updateDocument(collectionName, ID, document);
         handleObjectSuccess(myResponse, doc);
         if(Objects.isNull(doc) || doc.size() < 1){
             myResponse.setStatus("error");
@@ -109,7 +106,7 @@ public class ZCrudAPI extends BaseController {
     @DeleteMapping("/{collection}/{ID}")
     public ResponseEntity<?> removeDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID) {
         AppResponse<Long> myResponse = new AppResponse<>();
-        Long count = factory.getDocumentService().removeDocument(getUserId(req), collectionName, ID);
+        Long count = factory.getDocumentService().removeDocument(collectionName, ID);
         handleObjectSuccess(myResponse, count);
         if(count < 1){
             myResponse.setStatus("error");

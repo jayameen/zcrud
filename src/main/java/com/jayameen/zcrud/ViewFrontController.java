@@ -37,7 +37,7 @@ public class ViewFrontController extends BaseController{
         mv.addObject("collectionName", CaseUtils.toCamelCase(collectionName, true));
         Document document = null;
         try{
-            document = factory.getDocumentService().findDocumentByKeyValue(getUserId(req), collectionsMetaDataName, "name", collectionName);
+            document = factory.getDocumentService().findDocumentByKeyValue(collectionsMetaDataName, "name", collectionName);
             mv.addObject("metaData", document.toJson());
         }
         catch (Exception ex){

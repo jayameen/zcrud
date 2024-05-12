@@ -109,12 +109,12 @@ let Html = {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let Page = {
-    table : null,
     recId: 0,
     edit: false,
     dataTablescolumnData : [],
     dataTablescolumnDef  : [],
     prepareView: function (){
+        $("#mainOverlay").show();
         Page.initDataTableAndView();
         Page.loadTableList();
     },
@@ -132,7 +132,8 @@ let Page = {
                 let columnRec = {}
                 if(obj && obj["attribute"] && obj["displayInList"] && obj["displayInList"] == true){
                     columnRec["title"]          = obj["displayName"];
-                    columnRec["field"]           = obj["attribute"];
+                    columnRec["defaultContent"] =  '';
+                    columnRec["data"]           = obj["attribute"];
                     if(obj["width"]){  columnRec["width"] = obj["width"];  }
                     Page.dataTablescolumnData.push(columnRec);
                 }
@@ -141,50 +142,9 @@ let Page = {
                 if(obj["displayType"] && htmlContent != ''){
                    $("#model-details-card-body").append(Html.getHtml(obj));
                 }
-            }); //endForEach
-            var actionsButton = function(cell, formatterParams, onRendered){
-                var buttonsHtml = '';
-                buttonsHtml += '<div class="btn-group">';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-eye"></i></button>';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-pencil"></i></button>';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-trash"></i></button>';
-                buttonsHtml += '</div>';
-                return buttonsHtml;
-            };
-            Page.dataTablescolumnData.push({
-                title: 'Actions',
-                width:150,
-                headerHozAlign:"center",
-                hozAlign:"center",
-                formatter: function(cell, formatterParams){
-
-                    //create edit button
-                    var editBt = document.createElement("button");
-                    editBt.type = "button";
-                    editBt.innerHTML = "<i class='fa fa-pencil'></i>";
-                    editBt.classList.add("btn");
-                    editBt.addEventListener("click", function(){
-                        Page.addOrEditRec(cell.getRow().getData()._id,true);
-                    });
-
-                    //create edit button
-                    var deleteBt = document.createElement("button");
-                    deleteBt.type = "button";
-                    deleteBt.innerHTML = "<i class='fa fa-trash'></i>";
-                    deleteBt.classList.add("btn");
-                    deleteBt.addEventListener("click", function(){
-                        Page.deleteRec(cell.getRow().getData()._id);
-                    });
-
-                    //add buttons to cell (just the edit and delete buttons to start with)
-                    var buttonHolder = document.createElement("span");
-                    buttonHolder.appendChild(editBt);
-                    buttonHolder.appendChild(deleteBt);
-                    return buttonHolder;
-                },
-                });
+            });
         }
-        /*
+
         if(pageMetaData["childrensCollection"] && pageMetaData["childrensCollection"]!= '' && pageMetaData["childrensEdit"]){
             let colData   = { "title" : "Children", "data" : null, "render" : function(data, type, row){  return "<a href='"+appPath+"/"+pageMetaData["childrensCollection"]+"/list.html?pid="+data._id+"'><i class='fas fa-child'></i></a>";  } };
             Page.dataTablescolumnData.push(colData);
@@ -195,6 +155,7 @@ let Page = {
                 };
             Page.dataTablescolumnDef.push(colDef);
         }
+
         if(pageMetaData["filesEdit"] && pageMetaData["filesEdit"] == true){
             let colData   = { "title" : "Files", "data" : null, "render" : function(data, type, row){  return "<a href='"+appPath+"/"+pageMetaData["filesCollection"]+"/list.html?pid="+data._id+"'><i class='fas fa-file'></i></a>";  } };
             Page.dataTablescolumnData.push(colData);
@@ -227,34 +188,56 @@ let Page = {
             };
             Page.dataTablescolumnDef.push(colDef);
         }
-        */
     },
     loadTableList:function (){
-        $("#mainOverlay").show();
-        Page.table = new Tabulator("#tabulatorList", {
-            layout:"fitColumns",
-            placeholder:"No Data Set",
-            pagination:true,
-            paginationMode:"remote",
-            ajaxURL: appPath +"/api/"+pageCollection,
-            paginationSize:5,
-            paginationSizeSelector:[5, 10, 100],
-            movableColumns:true,
-            paginationCounter:"rows",
-            columns: Page.dataTablescolumnData,
-            dataSendParams:{
-                "page":"p",
-                "size":"s",
-            } ,
-            dataReceiveParams:{
-                "last_row": "records_total", //change last_row parameter name to "rows_total"
-                "last_page":"pages_total", //change last_page parameter name to "max_pages"
-            } ,
-            ajaxResponse:function(url, params, response){
+
+        $('#listTbl').DataTable({
+            "scrollX": true,
+            "autoWidth": false,
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [ 25, 50, 100 ]
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'Type search here'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            },
+            "initComplete": function (settings, json){
                 $("#mainOverlay").hide();
-                return response;
-            }
+            },
+            "ajax": {
+                "data" : function(){
+                    var info = $('#listTbl').DataTable().page.info();
+                    $('#listTbl').DataTable().ajax.url(appPath +"/api/"+pageCollection+"?p="+info.page+"&s="+info.length);
+                },
+                "dataSrc": function (json) {
+                    json.recordsFiltered = json.records_filtered;
+                    json.recordsTotal    = json.records_total;
+                    json.pagesTotal      = json.pages_total;
+                    return json.data;
+                }
+            },
+            "paging"    : true,
+            "responsive": true,
+            "searching" : true,
+            "ordering"  : false,
+            "processing": true,
+            "serverSide": true,
+            "lengthMenu": [[25, 50, 100], ["25", "50", "100"]],
+            autoWidth   : false,
+            "columns"   : Page.dataTablescolumnData,
+            "columnDefs": Page.dataTablescolumnDef,
         });
+
     },
     addOrEditRec:function (recId,edit){
         Page.resetForm("detailsModalForm");
@@ -265,7 +248,7 @@ let Page = {
         if(edit){
             addorEditLabel = " Edit Record In "+pageTitle;
             Page.loadRecordData();
-            //$('#fileslistTbl').DataTable().draw();
+            $('#fileslistTbl').DataTable().draw();
         }else{
             addorEditLabel = " Add Record In "+pageTitle;
         }
@@ -347,6 +330,8 @@ let Page = {
                 }
             });
 
+            console.log("jsonData "+JSON.stringify(jsonData));
+
             if(isValidSave){ $.ajax({
                 type : httpMethod,
                 url : httpAPIURL,
@@ -375,7 +360,7 @@ let Page = {
         });
     },
     refreshList: function(){
-        Page.table.replaceData();
+        $('#listTbl').DataTable().ajax.reload();
     },
     deleteRec: function (docID){
         if(confirm('This operation is irreversible! Are you sure you want to delete?')){
@@ -550,7 +535,99 @@ let Import = {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let Files = {
+    /*
+    uploadObjectFile:function (event){
+        event.preventDefault();
+        $("#modalLoader").show();
+        var mpData   = new FormData();
+        var fileName = "uploadFile";
+        let file     = document.getElementById("fileTab").files[0];
+        mpData.append(fileName, file);
+        $.ajax({
+            headers: { Accept: "application/json" },
+            contentType: false,
+            processData: false,
+            type: "POST",
+            enctype: "multipart/form-data",
+            cache: false,
+            url:
+                appPath + "/api/files/"+ Page.recId,
+            data: mpData,
+        }).done(function(response){
+            Common.showSuccess(response);
+            $("#modalLoader").hide();
+        }).fail(function(response){
+            Common.showError(response);
+            $("#modalLoader").hide();
+        });
+    },
 
+    listFilesTable:function (){
+        $('#fileslistTbl').DataTable({
+            "scrollX": true,
+            "autoWidth": false,
+            "bDestroy": true,
+            scrollCollapse: true,
+            scrollY: 200,
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [ 25, 50, 100 ]
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'Type search here'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            },
+            "ajax": {
+                "data": function() {
+                    var info = $('#fileslistTbl').DataTable().page.info();
+                    $('#fileslistTbl').DataTable().ajax.url(appPath + "/api/files/parent/"+Page.recId+ "?p=" + info.page + "&s=" + info.length);
+                }
+            },
+            "paging": true,
+            "responsive": true,
+            "searching": false,
+            "ordering": false,
+            "processing": true,
+            "serverSide": true,
+            "columns": [
+                {"data" : "parentId" , "title" : "Parent ID" , "width" : "100"},
+                {"data" : "_id" , "title" : "ID" , "width" : "100",},
+                {"data" : "fileName" , "title" : "File Name" },
+                {"data" : null,  "title" : "Download", "width" : "75",
+                 "render" : function (data, type, row){
+                    return "<a href='"+data.url+"' target='_blank'> <i class='fas fa-download'></i> </a>";
+                 }
+                },
+                {"data" : null, "title" : "Delete", "width" : "75",
+                    "render" : function (data, type, row){
+                        return "<a href=javascript:Files.delete('"+data._id+"') target='_blank'> <i class='fas fa-trash'></i> </a>";
+                    }
+                },
+            ],
+            "columnDefs" : [
+                {
+                    "targets": 3,
+                    "className": "text-center",
+                    "width": "75"
+                },
+                {
+                    "targets": 4,
+                    "className": "text-center",
+                    "width": "75"
+                },
+            ]
+        }).draw();
+    },
+     */
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 $(function () {
@@ -565,5 +642,49 @@ $(function () {
     var myModalEl = document.getElementById('thisModal');
     myModalEl.addEventListener('hidden.bs.modal', Page.refreshList);
 
+    // Search Buttons & Clear Buttons [START]
+    $("#listTbl").on("init.dt", function(){
+        $("#listTbl_wrapper input[type='search']").after(" <button class='btn btn-sm btn-outline-secondary' type='button' id='btnlistTbl_search'>Search</button>   <button style='margin-left: 20px;' class='btn btn-sm btn-outline' type='button' id='btnlistTbl_searchClear'>Clear</button>  ");
+
+
+        $("#listTbl_wrapper input[type='search']").off();
+
+        // Use return key to trigger search
+        $("#listTbl_wrapper input[type='search']").on("keydown", function(evt){
+            if(evt.keyCode == 13){
+                $("#listTbl").DataTable().search($("input[type='search']").val()).draw();
+            }
+        });
+
+        $("#btnlistTbl_search").button().on("click", function(){
+            $("#listTbl").DataTable().search($("input[type='search']").val()).draw();
+        });
+
+        $("#btnlistTbl_searchClear").button().on("click", function(){
+            $("#listTbl").DataTable().search('').draw();
+        });
+
+    });
+    // Search Buttons & Clear Buttons [START]
+    /*
+    $( "#thisModal" ).on('shown.bs.modal', function(){
+        let table = $('#fileslistTbl').DataTable();
+        console.log($('#fileslistTbl'));
+        console.log($('#fileslistTbl').DataTable());
+        console.log(JSON.stringify($('#fileslistTbl').DataTable().state()));
+        if(table && table.columns.length > 1){
+            $('#fileslistTbl').DataTable().ajax.reload();
+        }else {
+            Files.listFilesTable();
+        }
+    });
+
+    document.querySelectorAll('a[data-bs-toggle="tab"]').forEach((el) => {
+        el.addEventListener('shown.bs.tab', () => {
+            DataTable.tables({ visible: true, api: true }).columns.adjust();
+        });
+    });
+     */
+
+
 });
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

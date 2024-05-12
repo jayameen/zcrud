@@ -43,6 +43,7 @@
               </tr>
               </thead>
             </table>
+            <div id="tabulatorList"></div>
           </div><!--card-body-->
           <div id="mainOverlay" class="overlay">
             <i class="fas fa-3x fa-sync-alt"></i>
@@ -60,6 +61,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.2.1/js/tabulator.min.js" integrity="sha512-+FOZvgG76G8TTi7fxXsyGIA5XKmZXTOO2rLYtqakgs5ct1qsUSaO8/UP6Z3xbsyxL/hjS7mhYacG7CPmevI6Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <!--
 <script src="${staticUrl}/plugins/jquery-validation/jquery.validate.min.js"></script>
 <script src="${staticUrl}/plugins/jquery-validation/additional-methods.min.js"></script>

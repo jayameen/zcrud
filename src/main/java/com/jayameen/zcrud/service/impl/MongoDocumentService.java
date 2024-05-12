@@ -38,7 +38,7 @@ public class MongoDocumentService implements DocumentService {
     @Autowired private MongoTemplate mongoTemplate;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Page<Document> searchAllDocument(long userID, String collectionName, String tokens, int page, int size){
+    public Page<Document> searchAllDocument(String collectionName, String tokens, int page, int size){
         Pageable   pageable = PageRequest.of(page, size);
 
         TextCriteria criteria = TextCriteria.forDefaultLanguage();
@@ -47,7 +47,7 @@ public class MongoDocumentService implements DocumentService {
         Query query = TextQuery.queryText(criteria)
                 .sortByScore()
                 .with(pageable);
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        // query.addCriteria(Criteria.where("customerId").is(userID));
 
 
         return PageableExecutionUtils.getPage(mongoTemplate.find(query, Document.class, collectionName),
@@ -56,12 +56,12 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Page<Document> findAllDocument(long userID, String collectionName, int page, int size){
+    public Page<Document> findAllDocument(String collectionName, int page, int size){
 
         Pageable   pageable = PageRequest.of(page, size);
         Query         query = new Query();
         query.with(pageable).with(Sort.by(Sort.Direction.DESC, "_id"));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
 
         return PageableExecutionUtils.getPage(mongoTemplate.find(query, Document.class, collectionName),
                 pageable,
@@ -69,11 +69,11 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Page<Document> findAllDocumentForParentID(long userID, String collectionName, String parentID, int page, int size){
+    public Page<Document> findAllDocumentForParentID(String collectionName, String parentID, int page, int size){
         Pageable   pageable = PageRequest.of(page, size);
         Query         query = new Query();
         query.with(pageable).with(Sort.by(Sort.Direction.DESC, "_id"));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
         query.addCriteria(Criteria.where("parentId").is(parentID));
 
         return PageableExecutionUtils.getPage(mongoTemplate.find(query, Document.class, collectionName),
@@ -82,10 +82,10 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Document findDocumentByKeyValue(long userID, String collectionName, String key, String value){
+    public Document findDocumentByKeyValue(String collectionName, String key, String value){
         Query query = new Query();
         query.addCriteria(Criteria.where(key).is(value));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
         List<Document> result = mongoTemplate.find(query, Document.class, collectionName);
         if(Objects.nonNull(result) && result.size() > 0){
             return result.get(0);
@@ -94,11 +94,11 @@ public class MongoDocumentService implements DocumentService {
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Document getDocument(long userID, String collectionName, String id){
+    public Document getDocument(String collectionName, String id){
         ObjectId objectId   = new ObjectId(id);
         Query      query    = new Query();
         query.addCriteria(Criteria.where("_id").is(objectId));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
         List<Document> docs = mongoTemplate.find(query, Document.class, collectionName);
 
         if(Objects.nonNull(docs) && docs.size() > 0 ) {
@@ -108,18 +108,18 @@ public class MongoDocumentService implements DocumentService {
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Document createDocument(long userID, String collectionName, Document document){
-        document.put("customerId", userID);
+    public Document createDocument(String collectionName, Document document){
+        //document.put("customerId", userID);
         document = mongoTemplate.save(document, collectionName);
         return document;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BulkWriteResult createBulkDocuments(long userID, String collectionName, List<Document> objects){
+    public BulkWriteResult createBulkDocuments(String collectionName, List<Document> objects){
         List<WriteModel<Document>> writeOperations = new ArrayList<>();
         MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
         BulkWriteOptions writeOptions = new BulkWriteOptions().ordered(false);
         if(objects!=null){  for(Document doc :objects){
-            doc.put("customerId", userID);
+            //doc.put("customerId", userID);
             writeOperations.add(new InsertOneModel<>(doc));
         } }
         BulkWriteResult bulkWriteResult = collection.bulkWrite(writeOperations,writeOptions);
@@ -127,12 +127,12 @@ public class MongoDocumentService implements DocumentService {
         return bulkWriteResult;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Document replaceDocument(long userID, String collectionName, String ID, Document doc){
+    public Document replaceDocument(String collectionName, String ID, Document doc){
 
         ObjectId objectId = new ObjectId(ID);
         Query      query  = new Query();
         query.addCriteria(Criteria.where("_id").is(objectId));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
 
         doc.put("_id", objectId);
         FindAndReplaceOptions options = new FindAndReplaceOptions().returnNew();
@@ -140,11 +140,11 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Document updateDocument(long userID, String collectionName, String ID, Document doc){
+    public Document updateDocument(String collectionName, String ID, Document doc){
 
         ObjectId objectId = new ObjectId(ID);
         Query      query  = Query.query(Criteria.where("_id").is(objectId));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
         doc.put("_id", objectId);
         Update update = new Update();
 
@@ -159,11 +159,11 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Long removeDocument(long userID, String collectionName, String id){
+    public Long removeDocument(String collectionName, String id){
 
         ObjectId objectId = new ObjectId(id);
         Query      query  = Query.query(Criteria.where("_id").is(objectId));
-        query.addCriteria(Criteria.where("customerId").is(userID));
+        //query.addCriteria(Criteria.where("customerId").is(userID));
         return mongoTemplate.remove(query, collectionName).getDeletedCount();
 
     }
