@@ -142,27 +142,26 @@ let Page = {
                    $("#model-details-card-body").append(Html.getHtml(obj));
                 }
                 // 3. Prepare Filters View
-                console.log(obj["attribute"] + " - " + obj["displayName"] + " - " + obj["filter_type"] + " - " + obj["filter_field"]);
                 if(obj["filterField"] && obj["filterField"] == true && obj["filterType"]){
                    $("#filter-field").append("<option value='"+obj["attribute"]+"'>"+obj["displayName"]+"</option>");
                 }
             }); //endForEach
 
-            var actionsButton = function(cell, formatterParams, onRendered){
-                var buttonsHtml = '';
-                buttonsHtml += '<div class="btn-group">';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-eye"></i></button>';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-pencil"></i></button>';
-                buttonsHtml += '<button type="button" class="btn btn-default btn-flat"><i class="fa fa-trash"></i></button>';
-                buttonsHtml += '</div>';
-                return buttonsHtml;
-            };
             Page.dataTablescolumnData.push({
                 title: 'Actions',
-                width:150,
+                width:130,
                 headerHozAlign:"center",
                 hozAlign:"center",
                 formatter: function(cell, formatterParams){
+
+                    //create view button
+                    var viewBt = document.createElement("button");
+                    viewBt.type = "button";
+                    viewBt.innerHTML = "<i class='fa fa-eye'></i>";
+                    viewBt.classList.add("btn");
+                    viewBt.addEventListener("click", function(){
+                        Page.addOrEditRec(cell.getRow().getData()._id,true, true);
+                    });
 
                     //create edit button
                     var editBt = document.createElement("button");
@@ -170,7 +169,7 @@ let Page = {
                     editBt.innerHTML = "<i class='fa fa-pencil'></i>";
                     editBt.classList.add("btn");
                     editBt.addEventListener("click", function(){
-                        Page.addOrEditRec(cell.getRow().getData()._id,true);
+                        Page.addOrEditRec(cell.getRow().getData()._id,true,false);
                     });
 
                     //create edit button
@@ -184,56 +183,19 @@ let Page = {
 
                     //add buttons to cell (just the edit and delete buttons to start with)
                     var buttonHolder = document.createElement("span");
-                    buttonHolder.appendChild(editBt);
-                    buttonHolder.appendChild(deleteBt);
+                    if(pageMetaData["recordsView"] && pageMetaData["recordsView"] == true){
+                        buttonHolder.appendChild(viewBt);
+                    }
+                    if(pageMetaData["recordsEdit"] && pageMetaData["recordsEdit"] == true){
+                        buttonHolder.appendChild(editBt);
+                    }
+                    if(pageMetaData["recordsDelete"] && pageMetaData["recordsDelete"] == true){
+                        buttonHolder.appendChild(deleteBt);
+                    }
                     return buttonHolder;
                 },
                 });
         }
-        /*
-        if(pageMetaData["childrensCollection"] && pageMetaData["childrensCollection"]!= '' && pageMetaData["childrensEdit"]){
-            let colData   = { "title" : "Children", "data" : null, "render" : function(data, type, row){  return "<a href='"+appPath+"/"+pageMetaData["childrensCollection"]+"/list.html?pid="+data._id+"'><i class='fas fa-child'></i></a>";  } };
-            Page.dataTablescolumnData.push(colData);
-            let colDef = {
-                    "targets": Page.dataTablescolumnData.length-1,
-                    "className": "text-center",
-                    "width": "80"
-                };
-            Page.dataTablescolumnDef.push(colDef);
-        }
-        if(pageMetaData["filesEdit"] && pageMetaData["filesEdit"] == true){
-            let colData   = { "title" : "Files", "data" : null, "render" : function(data, type, row){  return "<a href='"+appPath+"/"+pageMetaData["filesCollection"]+"/list.html?pid="+data._id+"'><i class='fas fa-file'></i></a>";  } };
-            Page.dataTablescolumnData.push(colData);
-            let colDef = {
-                "targets": Page.dataTablescolumnData.length-1,
-                "className": "text-center",
-                "width": "60"
-            };
-            Page.dataTablescolumnDef.push(colDef);
-        }
-
-        if(pageMetaData["recordsEdit"] && pageMetaData["recordsEdit"] == true){
-            let colData   = { "title" : "Edit", "data" : null, "render" : function(data, type, row){  return "<a href=javascript:Page.addOrEditRec('"+data._id+"',true)><i class='fas fa-edit'></i></a>";  } };
-            Page.dataTablescolumnData.push(colData);
-            let colDef = {
-                "targets": Page.dataTablescolumnData.length-1,
-                "className": "text-center",
-                "width": "60"
-            };
-            Page.dataTablescolumnDef.push(colDef);
-        }
-
-        if(pageMetaData["recordsDelete"] && pageMetaData["recordsDelete"] == true){
-            let colData = { "title" : "Delete", "data" : null, "render" : function(data, type, row){  return "<a href=javascript:Page.deleteRec('"+data._id+"')><i class='fas fa-trash'></i></a>";  } };
-            Page.dataTablescolumnData.push(colData);
-            let colDef = {
-                "targets": Page.dataTablescolumnData.length-1,
-                "className": "text-center",
-                "width": "70"
-            };
-            Page.dataTablescolumnDef.push(colDef);
-        }
-        */
     },
     loadTableList:function (){
         $("#mainOverlay").show();
@@ -265,18 +227,23 @@ let Page = {
         });
 
     },
-    addOrEditRec:function (recId,edit){
+    addOrEditRec:function (recId,loadData,viewOnly){
         Page.resetForm("detailsModalForm");
         Page.recId = recId;
-        Page.edit  = edit;
+        Page.edit  = loadData;
+        Page.view  = viewOnly;
         var addorEditLabel = "";
-
-        if(edit){
-            addorEditLabel = " Edit Record In "+pageTitle;
+        if(Page.edit == true && Page.view == true){
+            addorEditLabel = " Viewing "+pageTitle + " Record ID: "+recId;
             Page.loadRecordData();
-            //$('#fileslistTbl').DataTable().draw();
+            $("#saveRecordBtn").hide();
+        }else if(Page.edit == true && Page.view == false){
+            addorEditLabel = " Editing "+pageTitle + " Record ID: "+recId;
+            Page.loadRecordData();
+            $("#saveRecordBtn").show();
         }else{
-            addorEditLabel = " Add Record In "+pageTitle;
+            addorEditLabel = " Add "+pageTitle + " Record";
+            $("#saveRecordBtn").show();
         }
         $("#thisModalTitle").text(addorEditLabel);
         $("#thisModal").modal("show");
@@ -300,15 +267,16 @@ let Page = {
     },
     setDataForEditing:function (obj){
         $.each(obj, function(key,val){
-            if(key == '_id'){
-                $("#thisModalTitle").text("Editing Record ID:  "+val+"  In "+pageTitle);
-            }else{
+            if(key != '_id'){
                 if($("#mod_"+key).attr('type') && $("#mod_"+key).attr('type') == 'checkbox'){
                    $("#mod_"+key).prop('checked', true);
+                    if(Page.view) { $("#mod_"+key).prop("disabled", true); } else { $("#mod_"+key).prop("disabled", false); }
                 }else if( $('input[name="mod_'+ key+'"]') && $('input[name="mod_'+ key+'"]').attr('type') == 'radio' ){
                     $('input[name="mod_'+ key+'"][value="'+val+'"]').prop('checked', true);
+                    if(Page.view) { $('input[name="mod_'+ key+'"][value="'+val+'"]').prop("disabled", true); } else { $('input[name="mod_'+ key+'"][value="'+val+'"]').prop("disabled", false); }
                 }else {
                    $("#mod_" + key).val(val);
+                   if(Page.view) { $("#mod_"+key).prop("disabled", true); } else { $("#mod_"+key).prop("disabled", false); }
                 }
             }
         });
@@ -321,7 +289,6 @@ let Page = {
 
         if(pageMetaData && pageMetaData["uiRules"]){
             var jsonData  = {}; let isValidSave = true;
-            //console.log("uiRules "+pageMetaData["uiRules"]);
             pageMetaData["uiRules"].forEach( function (obj){
                 var attrName  = obj["attribute"];
                 // Skip if _id & new record
@@ -552,8 +519,6 @@ let Import = {
                 });
             }
         }catch(e){ }
-
-        console.log(Import.batches.length + " - Running " +Import.runningBatch);
 
         if( (Import.runningBatch+1) >= Import.batches.length) {
             $("#errorMsgImport").show();

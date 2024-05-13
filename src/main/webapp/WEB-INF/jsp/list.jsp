@@ -27,7 +27,7 @@
               </div>
               <div class="col-md-6">
                 <div class="btn-group" style="float: right;">
-                  <button id="addButton" onclick="javascript:Page.addOrEditRec('-1',false);" type="button" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Add </button>
+                  <button id="addButton" onclick="javascript:Page.addOrEditRec('-1',false, false);" type="button" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Add </button>
                   <button id="importButton" onclick="javascript:Import.upload();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-file-import"></i> Import </button>
                   <!--
                   <button id="exportButton" onclick="javascript:Page.exportRecords();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Export </button>
@@ -81,11 +81,7 @@
 <!-- ./wrapper -->
 <%@include file="common/foot.jsp" %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
-<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.2.1/js/tabulator.min.js" integrity="sha512-+FOZvgG76G8TTi7fxXsyGIA5XKmZXTOO2rLYtqakgs5ct1qsUSaO8/UP6Z3xbsyxL/hjS7mhYacG7CPmevI6Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.2.1/js/tabulator.min.js"></script>
 <!--
 <script src="${staticUrl}/plugins/jquery-validation/jquery.validate.min.js"></script>
 <script src="${staticUrl}/plugins/jquery-validation/additional-methods.min.js"></script>
@@ -128,7 +124,7 @@
                       <div class="card-body" id="model-details-card-body">
                       </div><!--card-body-->
                       <div class="card-footer">
-                        <button onclick="javascript:Page.saveRecord();" type="button" class="btn btn-outline-primary float-end">Save</button>
+                        <button id="saveRecordBtn" onclick="javascript:Page.saveRecord();" type="button" class="btn btn-outline-primary float-end">Save</button>
                       </div><!--card-footer-->
                     </form>
                   </div>
