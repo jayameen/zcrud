@@ -29,13 +29,15 @@ public class ZCrudAPI extends BaseController {
     public ResponseEntity<?> findAll(HttpServletRequest req, @PathVariable("collection") String collectionName,
                                      @RequestParam(value = "p", required = false, defaultValue = "0") Short page,
                                      @RequestParam(value = "s", required = false, defaultValue = "10") Short size,
-                                     @RequestParam(value = "search[value]", required = false, defaultValue = "") String searchTokens,
+                                     @RequestParam(value = "filter[0][field]", required = false, defaultValue = "") String filterField,
+                                     @RequestParam(value = "filter[0][type]", required = false, defaultValue = "") String filterType,
+                                     @RequestParam(value = "filter[0][value]", required = false, defaultValue = "") String filterValue,
                                      @RequestParam(value = "draw", required = false, defaultValue = "1") Long draw) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        if(StringUtils.isBlank(searchTokens)) {
+        if(StringUtils.isBlank(filterField) || StringUtils.isBlank(filterType) || StringUtils.isBlank(filterValue)) {
             handleListSuccess(myResponse, factory.getDocumentService().findAllDocument(collectionName, page-1, size), draw);
         }else{
-            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(collectionName, searchTokens, page-1, size), draw);
+            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(collectionName, filterField, filterType, filterValue, page-1, size), draw);
         }
         return ResponseEntity.ok(myResponse);
     }

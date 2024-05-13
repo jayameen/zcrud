@@ -62,8 +62,8 @@ let Html = {
             radioHtml += '<div class="col-sm-10">';
                 $(obj["radio_data"]).each(function (i,rec){
                     radioHtml += '<div class="form-check">';
-                    radioHtml += '<input class="form-check-input" type="radio" id="'+rec["id"]+'" name="mod_'+attrIDName+'" value="'+rec["value"]+'">';
-                    radioHtml += '<label class="form-check-label">'+rec["value"]+'</label>';
+                    radioHtml += '<input class="form-check-input" type="radio" id="'+rec["value"]+'" name="mod_'+attrIDName+'" value="'+rec["value"]+'">';
+                    radioHtml += '<label for="'+rec["value"]+'" class="form-check-label">'+rec["value"]+'</label>';
                     radioHtml += '</div>';
                 });
             radioHtml += '</div>';
@@ -141,7 +141,13 @@ let Page = {
                 if(obj["displayType"] && htmlContent != ''){
                    $("#model-details-card-body").append(Html.getHtml(obj));
                 }
+                // 3. Prepare Filters View
+                console.log(obj["attribute"] + " - " + obj["displayName"] + " - " + obj["filter_type"] + " - " + obj["filter_field"]);
+                if(obj["filterField"] && obj["filterField"] == true && obj["filterType"]){
+                   $("#filter-field").append("<option value='"+obj["attribute"]+"'>"+obj["displayName"]+"</option>");
+                }
             }); //endForEach
+
             var actionsButton = function(cell, formatterParams, onRendered){
                 var buttonsHtml = '';
                 buttonsHtml += '<div class="btn-group">';
@@ -237,8 +243,8 @@ let Page = {
             pagination:true,
             paginationMode:"remote",
             ajaxURL: appPath +"/api/"+pageCollection,
-            paginationSize:5,
-            paginationSizeSelector:[5, 10, 100],
+            paginationSize:20,
+            paginationSizeSelector:[20, 50, 100],
             movableColumns:true,
             paginationCounter:"rows",
             columns: Page.dataTablescolumnData,
@@ -253,8 +259,11 @@ let Page = {
             ajaxResponse:function(url, params, response){
                 $("#mainOverlay").hide();
                 return response;
-            }
+            },
+            ajaxFiltering:true,
+            filterMode:"remote",
         });
+
     },
     addOrEditRec:function (recId,edit){
         Page.resetForm("detailsModalForm");
@@ -397,7 +406,18 @@ let Page = {
             });
         }
     },
-
+    filterRecords: function(){
+        var filterField = $("#filter-field").val();
+        var filterValue = $("#filter-value").val();
+        var filterType  = $("#filter-type").val();
+        Page.table.setFilter(filterField, filterType, filterValue);
+    },
+    clearFilters: function(){
+        Page.table.clearFilter();
+        $("#filter-field").val('');
+        $("#filter-type").val('');
+        $("#filter-value").val('');
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let Import = {
@@ -562,8 +582,7 @@ $(function () {
     if(Common.pageError == false){
         Page.prepareView();
     }
-    var myModalEl = document.getElementById('thisModal');
-    myModalEl.addEventListener('hidden.bs.modal', Page.refreshList);
-
+    document.getElementById('thisModal').addEventListener('hidden.bs.modal', Page.refreshList);
+    document.getElementById('importModal').addEventListener('hidden.bs.modal', Page.refreshList);
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

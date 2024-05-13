@@ -37,12 +37,34 @@
             </div>
           </div>
           <div class="card-body">
-            <table id="listTbl" style="width:100%; cursor:pointer;table-layout:fixed;" class="table table-bordered table-hover" width="100%">
-              <thead>
-              <tr id="tableHeader">
-              </tr>
-              </thead>
-            </table>
+
+            <div class="input-group mb-3">
+
+              <div class="input-group-prepend">
+                <span class="input-group-text">Filters </span>
+              </div>
+
+              <select id="filter-field" class="form-control">
+                <option></option>
+              </select>
+
+              <select id="filter-type" class="form-control" style="max-width: 100px;">
+                <option value="=">=</option>
+                <option value="<"><</option>
+                <option value="<="><=</option>
+                <option value=">">></option>
+                <option value=">=">>=</option>
+                <option value="!=">!=</option>
+                <option value="like">like</option>
+              </select>
+
+              <input id="filter-value" type="text" placeholder="value to filter" class="form-control">
+              <span class="input-group-append">
+                <button id="filter-search" class="btn btn-secondary btn-sm mr-2" onclick="Page.filterRecords();">Search</button>
+                <button id="filter-clear" class="btn btn-secondary btn-sm" onclick="Page.clearFilters();">Clear Filter</button>
+              </span>
+            </div><!--filter-->
+
             <div id="tabulatorList"></div>
           </div><!--card-body-->
           <div id="mainOverlay" class="overlay">

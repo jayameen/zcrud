@@ -15,7 +15,7 @@ public interface DocumentService {
 
     Page<Document> findAllDocumentForParentID(String collectionName, String parentID, int page, int size);
 
-    Page<Document> searchAllDocument(String collectionName, String tokens, int page, int size);
+    Page<Document> searchAllDocument(String collectionName, String filterField, String filterType, String filterValue, int page, int size);
 
     Document findDocumentByKeyValue(String collectionName, String key, String value);
 
