@@ -9,6 +9,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -31,13 +32,12 @@ public class ZCrudAPI extends BaseController {
                                      @RequestParam(value = "s", required = false, defaultValue = "10") Short size,
                                      @RequestParam(value = "filter[0][field]", required = false, defaultValue = "") String filterField,
                                      @RequestParam(value = "filter[0][type]", required = false, defaultValue = "") String filterType,
-                                     @RequestParam(value = "filter[0][value]", required = false, defaultValue = "") String filterValue,
-                                     @RequestParam(value = "draw", required = false, defaultValue = "1") Long draw) {
+                                     @RequestParam(value = "filter[0][value]", required = false, defaultValue = "") String filterValue){
         AppResponse<Document> myResponse = new AppResponse<>();
         if(StringUtils.isBlank(filterField) || StringUtils.isBlank(filterType) || StringUtils.isBlank(filterValue)) {
-            handleListSuccess(myResponse, factory.getDocumentService().findAllDocument(collectionName, page-1, size), draw);
+            handleListSuccess(myResponse, factory.getDocumentService().findAllDocument(collectionName, page-1, size));
         }else{
-            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(collectionName, filterField, filterType, filterValue, page-1, size), draw);
+            handleListSuccess(myResponse, factory.getDocumentService().searchAllDocument(collectionName, filterField, filterType, filterValue, page-1, size));
         }
         return ResponseEntity.ok(myResponse);
     }
@@ -60,10 +60,9 @@ public class ZCrudAPI extends BaseController {
     public ResponseEntity<?> findAllByParentId(HttpServletRequest req, @PathVariable("collection") String collectionName,
                                                @PathVariable("parentID") String parentID,
                                                @RequestParam(value = "p", required = false, defaultValue = "0") Short page,
-                                               @RequestParam(value = "s", required = false, defaultValue = "10") Short size,
-                                               @RequestParam(value = "draw", required = false, defaultValue = "1") Long draw) {
+                                               @RequestParam(value = "s", required = false, defaultValue = "10") Short size) {
         AppResponse<Document> myResponse = new AppResponse<>();
-        handleListSuccess(myResponse, factory.getDocumentService().findAllDocumentForParentID(collectionName, parentID, page-1, size), draw);
+        handleListSuccess(myResponse, factory.getDocumentService().findAllDocumentForParentID(collectionName, parentID, page-1, size));
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,23 +116,22 @@ public class ZCrudAPI extends BaseController {
         return ResponseEntity.ok(myResponse);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /*
-    @PostMapping("/files/{parentObjectID}")
-    public ResponseEntity<?> createDocumentUsingParentID(HttpServletRequest req, @PathVariable("parentObjectID") String parentObjectID) throws  Exception{
+
+    @PostMapping("/files/{collectionName}/{parentObjectID}")
+    public ResponseEntity<?> uploadFile(@RequestParam("uploadFile") MultipartFile file, @PathVariable("collectionName") String collectionsName, @PathVariable("parentObjectID") String parentObjectID) throws  Exception{
         AppResponse<Document> myResponse = new AppResponse<>();
-        MultipartData mpData = extractUserMultiPartInfo(req);
-        String     filePath  = "/customers/"+getUserId(req)+"/"+filesCollectionsName+"/"+parentObjectID;
-        String      fileName = mpData.getFileName();
+        String     filePath  = "/"+collectionsName+"/"+parentObjectID;
+        String      fileName = file.getOriginalFilename();
         String     isPrivate = "false";
-        String       fileUrl = uploadFile(mpData,filePath, isPrivate);
+        String       fileUrl = uploadFile(file.getBytes(),filePath,fileName, isPrivate);
+
         Document         doc = new Document();
         doc.put("parentId",parentObjectID);
         doc.put("url", fileUrl);
         doc.put("fileName", fileName);
-        handleObjectSuccess(myResponse, factory.getDocumentService().createDocument(getUserId(req),filesCollectionsName,doc));
+        handleObjectSuccess(myResponse, factory.getDocumentService().createDocument(filesCollectionsName,doc));
         return ResponseEntity.ok(myResponse);
     }
-     */
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

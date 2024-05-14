@@ -119,13 +119,28 @@ let Page = {
         Page.loadTableList();
     },
     initDataTableAndView: function(){
+
+        if(pageMetaData["addRecords"] && pageMetaData["addRecords"] == true){
+            $("#addButton").show();
+        }else{
+            $("#addButton").hide();
+        }
+
+        if(pageMetaData["downloadRecords"] && pageMetaData["downloadRecords"] == true){
+            $("#downloadButton").show();
+        }else{
+            $("#downloadButton").hide();
+        }
+
         if(pageMetaData["importRecords"] && pageMetaData["importRecords"] == true){
             $("#importButton").show();
         }else{
             $("#importButton").hide();
         }
+
+
         $("#modal-files-nav").hide();
-        $("#model-details-card-body").empty();
+        $("#model-details-html").empty();
         if(pageMetaData && pageMetaData["uiRules"]){
             pageMetaData["uiRules"].forEach( function (obj){
                 // 1. Prepare DataTables View
@@ -139,7 +154,7 @@ let Page = {
                 // 2. Prepare Modal View
                 let htmlContent = Html.getHtml(obj);
                 if(obj["displayType"] && htmlContent != ''){
-                   $("#model-details-card-body").append(Html.getHtml(obj));
+                   $("#model-details-html").append(Html.getHtml(obj));
                 }
                 // 3. Prepare Filters View
                 if(obj["filterField"] && obj["filterField"] == true && obj["filterType"]){
@@ -178,7 +193,7 @@ let Page = {
                     deleteBt.innerHTML = "<i class='fa fa-trash'></i>";
                     deleteBt.classList.add("btn");
                     deleteBt.addEventListener("click", function(){
-                        Page.deleteRec(cell.getRow().getData()._id);
+                        Page.deleteRec(pageCollection, cell.getRow().getData()._id);
                     });
 
                     //add buttons to cell (just the edit and delete buttons to start with)
@@ -198,7 +213,6 @@ let Page = {
         }
     },
     loadTableList:function (){
-        $("#mainOverlay").show();
         Page.table = new Tabulator("#tabulatorList", {
             layout:"fitColumns",
             placeholder:"No Data Set",
@@ -219,7 +233,6 @@ let Page = {
                 "last_page":"pages_total", //change last_page parameter name to "max_pages"
             } ,
             ajaxResponse:function(url, params, response){
-                $("#mainOverlay").hide();
                 return response;
             },
             ajaxFiltering:true,
@@ -236,14 +249,22 @@ let Page = {
         if(Page.edit == true && Page.view == true){
             addorEditLabel = " Viewing "+pageTitle + " Record ID: "+recId;
             Page.loadRecordData();
+            Files.showFilesList();
             $("#saveRecordBtn").hide();
+            $("#nav-item-files-tab").show();
+            $("#filesUploadDiv").hide();
         }else if(Page.edit == true && Page.view == false){
             addorEditLabel = " Editing "+pageTitle + " Record ID: "+recId;
             Page.loadRecordData();
+            Files.showFilesList();
             $("#saveRecordBtn").show();
+            $("#nav-item-files-tab").show();
+            $("#filesUploadDiv").show();
         }else{
             addorEditLabel = " Add "+pageTitle + " Record";
             $("#saveRecordBtn").show();
+            $("#nav-item-files-tab").hide();
+            $("#filesUploadDiv").hide();
         }
         $("#thisModalTitle").text(addorEditLabel);
         $("#thisModal").modal("show");
@@ -353,16 +374,20 @@ let Page = {
     refreshList: function(){
         Page.table.replaceData();
     },
-    deleteRec: function (docID){
+    deleteRec: function (collection, docID){
         if(confirm('This operation is irreversible! Are you sure you want to delete?')){
             $.ajax({
                 type : 'DELETE',
-                url : appPath + '/api/'+pageCollection+"/"+docID,
+                url : appPath + '/api/'+collection+"/"+docID,
                 contentType: 'application/json',
                 success: function(response){
                     if (response?.data != null && response.data.length > 0){
                         Common.showSuccess(response);
-                        Page.refreshList();
+                        if(collection === 'files'){
+                            Files.table.replaceData();
+                        }else{
+                            Page.refreshList();
+                        }
                     }else{
                         Common.showError(response);
                     }
@@ -397,7 +422,7 @@ let Import = {
     batches : [],
     runningBatch : 0,
     sheetData : null,
-    upload:function (){
+    uploadRecords:function (){
         $("#importModalTitle").text("Upload records to "+pageTitle);
         $("#importModal").modal("show");
     },
@@ -535,7 +560,111 @@ let Import = {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let Files = {
+    uploadObjectFile:function (){
+        $("#modalLoader").show();
+        var mpData   = new FormData();
+        var fileName = "uploadFile";
+        let file     = document.getElementById("modalFileUpload").files[0];
+        mpData.append(fileName, file);
+        $.ajax({
+            headers: { Accept: "application/json" },
+            contentType: false,
+            processData: false,
+            type: "POST",
+            enctype: "multipart/form-data",
+            cache: false,
+            url: appPath + "/api/files/"+ pageCollection + "/" +Page.recId,
+            data: mpData,
+        }).done(function(response){
+            Common.showSuccess(response);
+            $("#modalLoader").hide();
+            Files.table.replaceData();
+        }).fail(function(response){
+            Common.showError(response);
+            $("#modalLoader").hide();
+        });
+    },
+    showFilesList:function (){
+        $("#modalLoader").show();
+        Files.table = new Tabulator("#tabulatorFilesList", {
+            layout:"fitColumns",
+            placeholder:"No Data Set",
+            pagination:true,
+            paginationMode:"remote",
+            ajaxURL: appPath +"/api/files/parent/"+Page.recId,
+            paginationSize:10,
+            paginationSizeSelector:[10, 20, 40],
+            movableColumns:true,
+            paginationCounter:"rows",
+            columns: [
+                {title:"ID", field:"_id", width:300},
+                {title:"File Name", field:"fileName", width:400},
+                {title:"URL", field:"url"},
+                {
+                    title: 'Actions',
+                    width:120,
+                    headerHozAlign:"center",
+                    hozAlign:"center",
+                    formatter: function(cell, formatterParams){
+                        //create view button
+                        var viewBt = document.createElement("button");
+                        viewBt.type = "button";
+                        viewBt.innerHTML = "<i class='fa fa-download'></i>";
+                        viewBt.classList.add("btn");
+                        viewBt.addEventListener("click", function(){
+                            Files.downloadFile(cell.getRow().getData().url);
+                        });
 
+                        //create edit button
+                        var deleteBt = document.createElement("button");
+                        deleteBt.type = "button";
+                        deleteBt.innerHTML = "<i class='fa fa-trash'></i>";
+                        deleteBt.classList.add("btn");
+                        deleteBt.addEventListener("click", function () {
+                            Files.deleteFile(cell.getRow().getData()._id);
+                        });
+
+                        //add buttons to cell (just the edit and delete buttons to start with)
+                        var buttonHolder = document.createElement("span");
+                        buttonHolder.appendChild(viewBt);
+                        if(Page.edit == true && Page.view == false) { buttonHolder.appendChild(deleteBt); }
+                        return buttonHolder;
+                    },
+                }
+            ],
+            dataSendParams:{
+                "page":"p",
+                "size":"s",
+            } ,
+            dataReceiveParams:{
+                "last_row": "records_total", //change last_row parameter name to "rows_total"
+                "last_page":"pages_total", //change last_page parameter name to "max_pages"
+            } ,
+            ajaxResponse:function(url, params, response){
+                $("#modalLoader").hide();
+                return response;
+            },
+            ajaxFiltering:true,
+            filterMode:"remote",
+        });
+
+
+    },
+    downloadFile:function(url){
+        const  link = document.createElement('a')
+        link.target = '_blank';
+        link.href  = url
+        link.click();
+    },
+    deleteFile:function(recID){
+        Page.deleteRec('files', recID);
+    },
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+let Download = {
+    downloadRecords:function (){
+
+    },
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 $(function () {
@@ -549,5 +678,14 @@ $(function () {
     }
     document.getElementById('thisModal').addEventListener('hidden.bs.modal', Page.refreshList);
     document.getElementById('importModal').addEventListener('hidden.bs.modal', Page.refreshList);
+
+    $('#modalFileUpload').on('change',function(){
+        $(this).next('.custom-file-label').html($(this).val());
+    });
+
+    $('#importFile').on('change',function(){
+        $(this).next('.custom-file-label').html($(this).val());
+    });
+
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

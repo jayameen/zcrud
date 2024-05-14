@@ -28,15 +28,18 @@
               <div class="col-md-6">
                 <div class="btn-group" style="float: right;">
                   <button id="addButton" onclick="javascript:Page.addOrEditRec('-1',false, false);" type="button" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Add </button>
-                  <button id="importButton" onclick="javascript:Import.uploadRecords();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-file-import"></i> Upload </button>
-                  <button id="downloadButton" onclick="javascript:Download.downloadRecords();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Download </button>
+                  <button id="importButton" onclick="javascript:Import.upload();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-file-import"></i> Import </button>
+                  <!--
+                  <button id="exportButton" onclick="javascript:Page.exportRecords();" type="button" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Export </button>
+                  -->
                 </div>
               </div>
             </div>
           </div>
           <div class="card-body">
 
-            <div class="input-group mb-3"><!--filter-->
+            <div class="input-group mb-3">
+
               <div class="input-group-prepend">
                 <span class="input-group-text">Filters </span>
               </div>
@@ -64,6 +67,9 @@
 
             <div id="tabulatorList"></div>
           </div><!--card-body-->
+          <div id="mainOverlay" class="overlay">
+            <i class="fas fa-3x fa-sync-alt"></i>
+          </div>
 
         </div><!--card-->
       </div><!-- /.container-fluid -->
@@ -102,39 +108,31 @@
         </div><!--modal-header-->
 
         <div class="modal-body">
-          <div class="card card-secondary card-outline card-tabs">
-            <div class="card-header p-0 pt-1 border-bottom-0">
-              <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+          <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+              <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
                 <li class="nav-item">
-                  <a class="nav-link active" id="modal-tabs-details-tab" data-toggle="pill" href="#modal-tabs-details" role="tab" aria-controls="modal-tabs-details" aria-selected="true">Details</a>
+                  <a class="nav-link active" id="modal-details-tab" data-toggle="pill" href="#modal-details" role="tab" aria-controls="modal-details" aria-selected="true">Details</a>
                 </li>
-                <li class="nav-item" id="nav-item-files-tab">
-                  <a class="nav-link" id="modal-tabs-files-tab" data-toggle="pill" href="#modal-tabs-files" role="tab" aria-controls="modal-tabs-files" aria-selected="false">Files</a>
-                </li>
+
               </ul>
-            </div><!--card-header-->
+            </div>
             <div class="card-body">
-              <div class="tab-content" id="modal-tabs-tabContent">
-                <div class="tab-pane fade show active" id="modal-tabs-details" role="tabpanel" aria-labelledby="modal-tabs-details-tab">
-                  <form id="detailsModalForm" class="form-horizontal">
-                    <div id="model-details-html"></div>
-                    <button id="saveRecordBtn" onclick="javascript:Page.saveRecord();" type="button" class="btn btn-outline-primary float-end">Save</button>
-                  </form>
-                </div><!--details tab-pane-->
-                <div class="tab-pane fade" id="modal-tabs-files" role="tabpanel" aria-labelledby="modal-tabs-files-tab">
-                  <div class="input-group mb-3" id="filesUploadDiv">
-                    <div class="custom-file">
-                      <input type="file" class="custom-file-input" id="modalFileUpload">
-                      <label id="modalFileUploadLabel" class="custom-file-label" for="modalFileUpload"></label>
-                    </div>
-                    <div class="input-group-append">
-                      <button id="uploadFileBtn" onclick="javascript:Files.uploadObjectFile();" type="button" class="btn btn-outline-primary ml-2">Upload File</button>
-                    </div>
+              <div class="tab-content" id="details-tab-tabContent">
+                <div class="tab-pane fade show active" id="modal-details" role="tabpanel" aria-labelledby="modal-details-tab">
+                  <div class="card card-info">
+                    <form id="detailsModalForm" class="form-horizontal">
+                      <div class="card-body" id="model-details-html">
+                      </div><!--card-body-->
+                      <div class="card-footer">
+                        <button id="saveRecordBtn" onclick="javascript:Page.saveRecord();" type="button" class="btn btn-outline-primary float-end">Save</button>
+                      </div><!--card-footer-->
+                    </form>
                   </div>
-                  <div id="tabulatorFilesList"></div>
-                </div><!--files tab-pane-->
+                </div><!--modal-detail-tabs-->
               </div>
-            </div><!--card-body-->
+            </div>
+
           </div><!--card-->
         </div><!--modal-body-->
 

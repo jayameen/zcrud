@@ -34,6 +34,7 @@ spring:
 app:
   database-type: mongo
   static-min-url: ${server.servlet.context-path}/assets
+  file-service-base64-upload-api: http://localhost:8085/zfiles/api/object/base64
 
   mongo:
     collections:
