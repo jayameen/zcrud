@@ -29,5 +29,5 @@ public interface DocumentService {
 
     Document updateDocument(String collectionName, String ID, Document document);
 
-    Long removeDocument(String collectionName, String ID);
+    Long removeDocument(String collectionName, String ID) throws Exception;
 }

@@ -15,8 +15,9 @@ var Common = {
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     showSuccess: function (response) {
-        if (response.status.toLowerCase() === 'success' || response.status.toLowerCase() === 'ok') {
-            toastr.success(response.status.toUpperCase() + " - " + response.description);
+        console.log("response?.status. "+response?.status);
+        if (response?.status.toLowerCase() === 'success' || response?.status.toLowerCase() === 'ok') {
+            toastr.success(response.status.toUpperCase() + " - " + response?.description);
         } else {
             Common.showError(response);
         }
@@ -24,8 +25,16 @@ var Common = {
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     showError: function (response) {
-        if (response.status.toLowerCase() === 'error') {
-            toastr.error(response.status.toUpperCase() + " - " + response.description);
+        var responseObject = null;
+        if(response?.responseText) {
+            responseObject = JSON.parse(response.responseText);
+        }else if(response?.responseJSON){
+            responseObject = response.responseJSON;
+        }else{
+            responseObject = response;
+        }
+        if (responseObject?.status.toLowerCase() === 'error') {
+            toastr.error(responseObject.status.toUpperCase() + " - " + responseObject?.description);
         } else {
             toastr.error(JSON.stringify(response));
         }

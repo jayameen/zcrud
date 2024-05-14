@@ -137,7 +137,6 @@ public class MongoDocumentService implements DocumentService {
         ObjectId objectId = new ObjectId(ID);
         Query      query  = new Query();
         query.addCriteria(Criteria.where("_id").is(objectId));
-        //query.addCriteria(Criteria.where("customerId").is(userID));
 
         doc.put("_id", objectId);
         FindAndReplaceOptions options = new FindAndReplaceOptions().returnNew();
@@ -163,7 +162,13 @@ public class MongoDocumentService implements DocumentService {
 
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Long removeDocument(String collectionName, String id){
+    public Long removeDocument(String collectionName, String id) throws Exception {
+        //Check if files exists & throw exception
+        Page<Document> files = findAllDocumentForParentID("files", id, 0, 1);
+        if(files!=null && files.getTotalElements() > 0){
+            throw new Exception("Cannot Delete - Files exists for this document, delete all files first.");
+        }
+
         ObjectId objectId = new ObjectId(id);
         Query      query  = Query.query(Criteria.where("_id").is(objectId));
         return mongoTemplate.remove(query, collectionName).getDeletedCount();

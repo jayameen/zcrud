@@ -105,7 +105,7 @@ public class ZCrudAPI extends BaseController {
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @DeleteMapping("/{collection}/{ID}")
-    public ResponseEntity<?> removeDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID) {
+    public ResponseEntity<?> removeDocument(HttpServletRequest req, @PathVariable("collection") String collectionName, @PathVariable("ID") String ID) throws Exception {
         AppResponse<Long> myResponse = new AppResponse<>();
         Long count = factory.getDocumentService().removeDocument(collectionName, ID);
         handleObjectSuccess(myResponse, count);
