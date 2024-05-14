@@ -39,3 +39,5 @@
   <link rel="stylesheet" href="${staticMinUrl}/css/app.css">
   <link rel="icon" type="image/x-icon" href="${staticMinUrl}/images/jm.svg">
 
+
+

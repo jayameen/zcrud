@@ -286,19 +286,33 @@ let Page = {
             }
         });
     },
-    setDataForEditing:function (obj){
-        $.each(obj, function(key,val){
+    setDataForEditing:function (recordData){
+        pageMetaData["uiRules"].forEach( function (obj){
+            var key     = obj["attribute"];
+            var keyType = obj["displayType"];
+            var value   = recordData[key];
             if(key != '_id'){
-                if($("#mod_"+key).attr('type') && $("#mod_"+key).attr('type') == 'checkbox'){
-                   $("#mod_"+key).prop('checked', true);
-                    if(Page.view) { $("#mod_"+key).prop("disabled", true); } else { $("#mod_"+key).prop("disabled", false); }
-                }else if( $('input[name="mod_'+ key+'"]') && $('input[name="mod_'+ key+'"]').attr('type') == 'radio' ){
-                    $('input[name="mod_'+ key+'"][value="'+val+'"]').prop('checked', true);
-                    if(Page.view) { $('input[name="mod_'+ key+'"][value="'+val+'"]').prop("disabled", true); } else { $('input[name="mod_'+ key+'"][value="'+val+'"]').prop("disabled", false); }
-                }else {
-                   $("#mod_" + key).val(val);
-                   if(Page.view) { $("#mod_"+key).prop("disabled", true); } else { $("#mod_"+key).prop("disabled", false); }
+                if(keyType == 'checkbox'){
+                    if(recordData && recordData[key]) {
+                        $("#mod_"+key).prop('checked', true);
+                    }else{
+                        $("#mod_"+key).prop('checked', false);
+                    }
+                }if(keyType == 'radio'){
+                    $('input[name="mod_'+ key+'"][value="'+value+'"]').prop('checked', true);
+                } else {
+                    if(recordData && value) {
+                        $("#mod_" + key).val(value);
+                    }else{
+                        $("#mod_" + key).val('');
+                    }
                 }
+                if(Page.edit == true && Page.view == true) {
+                    $("#mod_"+key).prop("disabled", true);
+                } else {
+                    $("#mod_"+key).prop("disabled", false);
+                }
+
             }
         });
     },
@@ -662,8 +676,98 @@ let Files = {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 let Download = {
-    downloadRecords:function (){
+    type: 'csv',
+    page:0,
+    size:100,
+    totalPages:1,
+    totalRecords:1,
+    data:[],
+    pdfColumns: [],
+    percentage:0,
+    go:function (type){
+       Download.data = [];
+       Download.pdfColumns = [];
+       Download.type = type;
+       Download.page = 0;
+       Download.fetchAllData();
+    },
+    fetchAllData:function (){
+        $("#progressModal").modal("show");
+        $('#downloadModalProgressBarContainer').show();
+        Download.makeAjaxCall();
+    },
+    makeAjaxCall: function (){
+        Download.page = Download.page + 1;
+        $.ajax({
+            type : 'GET',
+            url : appPath + '/api/'+pageCollection+"?p="+Download.page+"&s="+Download.size,
+            contentType: 'application/json',
+            success: function (response){
+                if(response.data && response.data[0]) { Download.data.push.apply(Download.data, response.data); }
+                Download.totalPages = response.pages_total;
+                Download.totalRecords = response.records_total;
+                Download.showProgress(response);
+                if(Download.page < Download.totalPages){
+                    Download.makeAjaxCall();
+                }
+            },
+            error: function (response){
+                Download.showProgress(response);
+                if(Download.page < Download.totalPages){
+                    Download.makeAjaxCall();
+                }
+            }
+        });
+    },
+    showProgress:function (response){
+        Download.percentage = (Download.page / Download.totalPages) * 100;
+        $('#downloadProgressBar').css('width', Download.percentage+'%').attr('aria-valuenow', Download.percentage);
+        $("#downloadProgressBarMsg").text("Downloading "+ Download.page*Download.size + " out of "+ Download.totalRecords + " - " + Download.percentage.toFixed(2) + " % Completed");
+        if(Download.page >= Download.totalPages){
+           Download.createAndDownloadFile();
+        }
+    },
+    createAndDownloadFile:function (){
+        if(Download.type == 'csv' || Download.type == 'xlsx'){
+            Download.createXLSOrCSVFile();
+        }else if(Download.type == 'json'){
+            Download.downloadObjectAsJson(Download.data,pageCollection)
+        }else if(Download.type == 'pdf'){
+            Download.downloadAsPDF();
+        }
+    },
+    downloadAsPDF:function (){
+        if(pageMetaData && pageMetaData["uiRules"]){
+            pageMetaData["uiRules"].forEach( function (obj){
+                let colRec = {}
+                if(obj["attribute"]){
+                   colRec["title"] = obj["attribute"];
+                   colRec["dataKey"] = obj["attribute"];
+                }
+                Download.pdfColumns.push(colRec);
+            }); //endForEach
+        }
 
+        window.jsPDF = window.jspdf.jsPDF;
+        // Only pt supported (not mm or in)
+        var doc = new jsPDF('p', 'pt');
+        doc.autoTable(Download.pdfColumns, Download.data);
+        doc.save(pageCollection+'.pdf');
+    },
+    downloadObjectAsJson:function (exportObj, exportName){
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href",     dataStr);
+        downloadAnchorNode.setAttribute("download", exportName + ".json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    },
+    createXLSOrCSVFile: function(){
+        const worksheet = XLSX.utils.json_to_sheet(Download.data);
+        const workbook  = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, pageCollection);
+        XLSX.writeFile(workbook, pageCollection+"."+Download.type, { compression: true });
     },
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
