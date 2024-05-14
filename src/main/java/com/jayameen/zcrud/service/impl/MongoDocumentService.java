@@ -48,7 +48,11 @@ public class MongoDocumentService implements DocumentService {
     }
     private Query getFilterCriteria(String filterField, String filterType, String filterValue) {
         if(filterType.equals("=")){
-            return Query.query(Criteria.where(filterField).is(filterValue));
+            if(filterValue!=null && (filterValue.toLowerCase().equals("true") || filterValue.toLowerCase().equals("false"))){
+                return Query.query(Criteria.where(filterField).is(Boolean.parseBoolean(filterValue)));
+            }else{
+                return Query.query(Criteria.where(filterField).is(filterValue));
+            }
         }else if(filterType.equals("<")){
             return Query.query(Criteria.where(filterField).lt(filterValue));
         }else if(filterType.equals(">")){
