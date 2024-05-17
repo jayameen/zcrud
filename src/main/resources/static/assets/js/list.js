@@ -219,6 +219,14 @@ let Page = {
             pagination:true,
             paginationMode:"remote",
             ajaxURL: appPath +"/api/"+pageCollection,
+            ajaxConfig:{
+                method:"GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": 'application/json; charset=utf-8', //set specific content type
+                    "Authorization" : Common.getAccessToken(),
+                },
+            },
             paginationSize:20,
             paginationSizeSelector:[20, 50, 100],
             movableColumns:true,
@@ -231,12 +239,16 @@ let Page = {
             dataReceiveParams:{
                 "last_row": "records_total", //change last_row parameter name to "rows_total"
                 "last_page":"pages_total", //change last_page parameter name to "max_pages"
-            } ,
+            },
             ajaxResponse:function(url, params, response){
                 return response;
             },
             ajaxFiltering:true,
             filterMode:"remote",
+        });
+
+        Page.table.on("dataLoadError", function(error){
+            Common.showError(error);
         });
 
     },
@@ -274,6 +286,11 @@ let Page = {
             type : 'GET',
             url : appPath + '/api/'+pageCollection+'/'+Page.recId,
             contentType: 'application/json',
+            headers: {
+                "Accept": "application/json",
+                "Content-type": 'application/json; charset=utf-8', //set specific content type
+                "Authorization" : Common.getAccessToken(),
+            },
             success: function(response){
                 if (response?.data != null && response.data.length > 0){
                     Page.setDataForEditing(response.data[0]);
@@ -363,6 +380,11 @@ let Page = {
                 url : httpAPIURL,
                 data : JSON.stringify(jsonData),
                 contentType: 'application/json',
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": 'application/json; charset=utf-8', //set specific content type
+                    "Authorization" : Common.getAccessToken(),
+                },
                 success: function(response){
                     $(".fieldError").remove();
                     if (response?.data != null && response.data.length > 0){
@@ -394,6 +416,11 @@ let Page = {
                 type : 'DELETE',
                 url : appPath + '/api/'+collection+"/"+docID,
                 contentType: 'application/json',
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": 'application/json; charset=utf-8', //set specific content type
+                    "Authorization" : Common.getAccessToken(),
+                },
                 success: function(response){
                     if (response?.data != null && response.data.length > 0){
                         Common.showSuccess(response);
@@ -524,6 +551,11 @@ let Import = {
                 url : httpAPIURL,
                 data : JSON.stringify(jsonData),
                 contentType: 'application/json',
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": 'application/json; charset=utf-8', //set specific content type
+                    "Authorization" : Common.getAccessToken(),
+                },
                 success: function (response){
                     Import.showProgress(response);
                     if(Import.runningBatch < Import.batches.length){
@@ -586,6 +618,10 @@ let Files = {
             processData: false,
             type: "POST",
             enctype: "multipart/form-data",
+            headers: {
+                "Accept": "application/json",
+                "Authorization" : Common.getAccessToken(),
+            },
             cache: false,
             url: appPath + "/api/files/"+ pageCollection + "/" +Page.recId,
             data: mpData,
@@ -606,6 +642,14 @@ let Files = {
             pagination:true,
             paginationMode:"remote",
             ajaxURL: appPath +"/api/files/parent/"+Page.recId,
+            ajaxConfig:{
+                method:"GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-type": 'application/json; charset=utf-8', //set specific content type
+                    "Authorization" : Common.getAccessToken(),
+                },
+            },
             paginationSize:10,
             paginationSizeSelector:[10, 20, 40],
             movableColumns:true,
@@ -662,6 +706,10 @@ let Files = {
             filterMode:"remote",
         });
 
+        Files.table.on("dataLoadError", function(error){
+            Common.showError(error);
+        });
+
 
     },
     downloadFile:function(url){
@@ -702,6 +750,11 @@ let Download = {
             type : 'GET',
             url : appPath + '/api/'+pageCollection+"?p="+Download.page+"&s="+Download.size,
             contentType: 'application/json',
+            headers: {
+                "Accept": "application/json",
+                "Content-type": 'application/json; charset=utf-8', //set specific content type
+                "Authorization" : Common.getAccessToken(),
+            },
             success: function (response){
                 if(response.data && response.data[0]) { Download.data.push.apply(Download.data, response.data); }
                 Download.totalPages = response.pages_total;

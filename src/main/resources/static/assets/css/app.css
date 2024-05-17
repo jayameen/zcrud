@@ -25,3 +25,7 @@ body {
 .fieldError{
   font-size: 11px; color: red;'
 }
+
+.nav-item a{
+  font-size: 14px;
+}

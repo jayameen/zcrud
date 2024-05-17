@@ -11,7 +11,7 @@ public class ExceptionHandler {
 
     @Value("${spring.servlet.multipart.max-file-size:10}")
     private Integer allowedFileSize;
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @org.springframework.web.bind.annotation.ExceptionHandler(value = MaxUploadSizeExceededException.class)
     public ResponseEntity<?> maxUploadSizeExceededException(MaxUploadSizeExceededException exception) {
         AppResponse appResponse = new AppResponse();

@@ -14,7 +14,20 @@
     var staticMinUrl    = '${staticMinUrl}';
     var pageCollection  = '${requestScope['collection']}';
     var pageTitle       = '${requestScope['collectionName']}';
-    var pageMetaData    =  JSON.parse('${requestScope['metaData']}');
+    var pageMetaData    =  {};
+    try{ pageMetaData   = JSON.parse('${requestScope['metaData']}'); }catch(e){ pageMetaData =  {}; }
+    try{
+      let at = "${requestScope['access_token']}";
+      if(at && at !=null && at!=''){
+        localStorage.setItem("access_token", at);
+      }
+
+      let rt = "${requestScope['refresh_token']}";
+      if(rt && rt !=null && rt!=''){
+        localStorage.setItem("refresh_token", rt);
+      }
+
+    }catch(e){ }
     var serverError     =  '${requestScope['serverError']}';
     var pageParentID    = '${param.pid}';
   </script>

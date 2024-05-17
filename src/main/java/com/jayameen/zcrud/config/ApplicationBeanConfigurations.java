@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -19,7 +20,9 @@ import org.springframework.web.client.RestTemplate;
  */
 
 @Configuration
+@EnableWebSecurity
 public class ApplicationBeanConfigurations {
+
 
     @Bean("restTemplate")
     public RestTemplate getRestTemplate() {
@@ -48,4 +51,6 @@ public class ApplicationBeanConfigurations {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return httpHeaders;
     }
+
+
 }

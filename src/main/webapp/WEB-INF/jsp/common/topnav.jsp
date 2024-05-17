@@ -65,17 +65,14 @@
                 <li>
                     <table cellpadding="5" cellspacing="5">
                         <tr>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
+                            <td><a href="${appPath}/login" class="dropdown-item"> Login </a></td>
                         </tr>
                         <tr>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
-                            <td><a href="#" class="dropdown-item">Some action </a></td>
+                            <td><a href="javascript:Common.logout()" class="dropdown-item"> Logout </a></td>
                         </tr>
                     </table>
                 </li>
+                <!--
                 <li class="dropdown-divider"></li>
                 <li class="dropdown-submenu dropdown-hover">
                     <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Hover for action</a>
@@ -93,6 +90,8 @@
                         </li>
                     </ul>
                 </li>
+                -->
+
             </ul>
         </li>
     </ul><!-- Right navbar links[END] -->

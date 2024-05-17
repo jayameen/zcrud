@@ -15,7 +15,6 @@ var Common = {
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     showSuccess: function (response) {
-        console.log("response?.status. "+response?.status);
         if (response?.status.toLowerCase() === 'success' || response?.status.toLowerCase() === 'ok') {
             toastr.success(response.status.toUpperCase() + " - " + response?.description);
         } else {
@@ -25,20 +24,24 @@ var Common = {
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     showError: function (response) {
-        var responseObject = null;
-        if(response?.responseText) {
-            responseObject = JSON.parse(response.responseText);
-        }else if(response?.responseJSON){
-            responseObject = response.responseJSON;
-        }else{
-            responseObject = response;
-        }
-        if (responseObject?.status.toLowerCase() === 'error') {
-            toastr.error(responseObject.status.toUpperCase() + " - " + responseObject?.description);
-        } else {
-            toastr.error(JSON.stringify(response));
-        }
-        try { $("#loader").hide(); $("#modalLoader").hide(); } catch (e) { }
+      try {
+          if (response?.status == 401 || response?.status == 403) {
+              toastr.error("Access Denied! - Please check your permissions / logout & login again to continue!");
+              //Common.logout();
+          } else if (response?.responseText) {
+              let responseObject = JSON.parse(response.responseText);
+              toastr.error(responseObject.status.toUpperCase() + " - " + responseObject?.description);
+          }else if(response?.responseJSON){
+              let responseObject = response.responseJSON;
+              toastr.error(responseObject.status.toUpperCase() + " - " + responseObject?.description);
+          }else{
+              toastr.error(JSON.stringify(response));
+          }
+      }catch (e){
+          toastr.error(e + " - " + JSON.stringify(response));
+      }
+
+      try { $("#loader").hide(); $("#modalLoader").hide(); } catch (e) { }
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     tableToCSV : function(elementName) {
@@ -95,6 +98,31 @@ var Common = {
         // Automatically click the link to trigger download
         temp_link.click();
         document.body.removeChild(temp_link);
-    }
+    },
+    getAccessToken: function () {
+        return 'Bearer '+ localStorage.getItem('access_token');
+    },
+    logout: function () {
+        localStorage.clear();
+        window.location.href = appPath+"/logout";
+    },
 
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+$(function () {
+    /*
+    $(document).on("ajaxComplete", function (e, xhr, settings, exception) {
+        console.log("ajaxComplete - " + xhr.status);
+        if (xhr.status === 401) {
+            xhr.abort();
+            toastr.error("Login failed! - Please login again to continue!");
+            Common.logout();
+        } else if (xhr.status === 403) {
+            xhr.abort();
+            toastr.error("Forbidden / Access Denied - To The Resource ");
+            Common.logout();
+        }
+    });
+     */
+});
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
