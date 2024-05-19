@@ -38,6 +38,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(value = Exception.class)
     public ResponseEntity<?> exception(Exception exception) {
+        System.out.println("#########################\n Unhandled Exception occurred\n#########################");
         exception.printStackTrace();
         AppResponse appResponse = new AppResponse();
         appResponse.setStatus("error");

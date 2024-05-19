@@ -24,10 +24,12 @@ var Common = {
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     showError: function (response) {
+      console.log(response);
       try {
           if (response?.status == 401 || response?.status == 403) {
+              Common.retryLoginUsingRefreshToken();
+          }else if(response?.status == 405){
               toastr.error("Access Denied! - Please check your permissions / logout & login again to continue!");
-              //Common.logout();
           } else if (response?.responseText) {
               let responseObject = JSON.parse(response.responseText);
               toastr.error(responseObject.status.toUpperCase() + " - " + responseObject?.description);
@@ -42,6 +44,31 @@ var Common = {
       }
 
       try { $("#loader").hide(); $("#modalLoader").hide(); } catch (e) { }
+    },
+    //////////////////////////////////////////////////////////////////////////////////////////
+    retryLoginUsingRefreshToken: function () {
+        var refreshToken = localStorage.getItem('refresh_token');
+        var jsonData     = {"refresh_token" : refreshToken};
+        if(refreshToken && refreshToken != ''){
+            $.ajax({
+                type: "POST",
+                url: appPath + "/api/refresh-token",
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                success: function (response) {
+                    if (response?.status.toLowerCase() === 'success' || response?.status.toLowerCase() === 'ok') {
+                        localStorage.setItem('access_token', response?.data[0]?.access_token);
+                        localStorage.setItem('refresh_token', response?.data[0]?.refresh_token);
+                        window.location.reload();
+                    } else {
+                        toastr.error("Access Denied! - Please check your permissions / logout & login again to continue!");
+                    }
+                },
+                error: function (response) {
+                    toastr.error("Access Denied! - Please check your permissions / logout & login again to continue!");
+                }
+            });
+        }
     },
     //////////////////////////////////////////////////////////////////////////////////////////
     tableToCSV : function(elementName) {
@@ -103,26 +130,25 @@ var Common = {
         return 'Bearer '+ localStorage.getItem('access_token');
     },
     logout: function () {
-        localStorage.clear();
-        window.location.href = appPath+"/logout";
+
+        var refreshToken = localStorage.getItem('refresh_token');
+        var jsonData     = {"refresh_token" : refreshToken, "access_token" : localStorage.getItem('access_token')};
+        if(refreshToken && refreshToken != ''){
+            $.ajax({
+                type: "POST",
+                url: appPath + "/api/logout",
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                success: function (response) {
+                    toastr.success("Logged Out!!");
+                    window.location.href = appPath;
+                },
+                error: function (response) {
+                    toastr.error("Logout Failed! - Please try again!");
+                }
+            });
+        }
     },
 
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-$(function () {
-    /*
-    $(document).on("ajaxComplete", function (e, xhr, settings, exception) {
-        console.log("ajaxComplete - " + xhr.status);
-        if (xhr.status === 401) {
-            xhr.abort();
-            toastr.error("Login failed! - Please login again to continue!");
-            Common.logout();
-        } else if (xhr.status === 403) {
-            xhr.abort();
-            toastr.error("Forbidden / Access Denied - To The Resource ");
-            Common.logout();
-        }
-    });
-     */
-});
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

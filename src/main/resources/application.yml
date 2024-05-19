@@ -19,7 +19,7 @@ app:
   database-type: mongo
   static-min-url: ${server.servlet.context-path}/assets
   file-service-base64-upload-api: http://localhost:8085/zfiles/api/object/base64
-  key-cloak-logout-url: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/logout?client_id=zcrud
+  key-cloak-logout-url: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/logout
 
   mongo:
     collections:

@@ -126,12 +126,12 @@
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-oauth2-resource-server:2.7.5" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.security:spring-security-oauth2-resource-server:5.7.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.nimbusds:oauth2-oidc-sdk:8.19" level="project" />
-    <orderEntry type="library" name="Maven: com.github.stephenc.jcip:jcip-annotations:1.0-1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.github.stephenc.jcip:jcip-annotations:1.0-1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.nimbusds:content-type:2.1" level="project" />
-    <orderEntry type="library" name="Maven: net.minidev:json-smart:2.4.8" level="project" />
-    <orderEntry type="library" name="Maven: net.minidev:accessors-smart:2.4.8" level="project" />
-    <orderEntry type="library" name="Maven: org.ow2.asm:asm:9.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: net.minidev:json-smart:2.4.8" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: net.minidev:accessors-smart:2.4.8" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.ow2.asm:asm:9.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.nimbusds:lang-tag:1.4.4" level="project" />
-    <orderEntry type="library" name="Maven: com.nimbusds:nimbus-jose-jwt:8.18" level="project" />
+    <orderEntry type="library" name="Maven: com.nimbusds:nimbus-jose-jwt:9.39.1" level="project" />
   </component>
 </module>

@@ -27,7 +27,7 @@ public class ZCrudAPI extends BaseController {
     @Value("${app.mongo.collections.files}") protected String filesCollectionsName;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @GetMapping("/{collection}")
-    public ResponseEntity<?> findAll(HttpServletRequest req, @PathVariable("collection") String collectionName,
+    public ResponseEntity<?> findAll(@PathVariable("collection") String collectionName,
                                      @RequestParam(value = "p", required = false, defaultValue = "0") Short page,
                                      @RequestParam(value = "s", required = false, defaultValue = "10") Short size,
                                      @RequestParam(value = "filter[0][field]", required = false, defaultValue = "") String filterField,

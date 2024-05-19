@@ -18,15 +18,13 @@
     try{ pageMetaData   = JSON.parse('${requestScope['metaData']}'); }catch(e){ pageMetaData =  {}; }
     try{
       let at = "${requestScope['access_token']}";
-      if(at && at !=null && at!=''){
-        localStorage.setItem("access_token", at);
-      }
-
       let rt = "${requestScope['refresh_token']}";
-      if(rt && rt !=null && rt!=''){
-        localStorage.setItem("refresh_token", rt);
-      }
 
+      if(at && at !=null && at!='' && rt && rt !=null && rt!=''){
+        localStorage.setItem("access_token", at);
+        localStorage.setItem("refresh_token", rt);
+        window.location.href = appPath;
+      }
     }catch(e){ }
     var serverError     =  '${requestScope['serverError']}';
     var pageParentID    = '${param.pid}';

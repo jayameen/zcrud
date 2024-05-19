@@ -149,6 +149,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>9.39.1</version>
+		</dependency>
+
 
 		<!-- Madan KN - Deps [end]-->
 	</dependencies>

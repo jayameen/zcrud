@@ -613,7 +613,6 @@ let Files = {
         let file     = document.getElementById("modalFileUpload").files[0];
         mpData.append(fileName, file);
         $.ajax({
-            headers: { Accept: "application/json" },
             contentType: false,
             processData: false,
             type: "POST",

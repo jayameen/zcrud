@@ -12,7 +12,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -30,7 +29,9 @@ public class BaseController<T>{
     @Value("${app.file-service-base64-upload-api}") protected String fileServiceAPIUrl;
     @Value("${spring.security.oauth2.client.provider.keycloak.token-uri}") protected String tokenServiceAPIUrl;
     @Value("${spring.security.oauth2.client.registration.zcrud.client-secret}") protected String clientSecret;
+    @Value("${spring.security.oauth2.client.registration.zcrud.client-id}") protected String clientID;
     @Value("${spring.security.oauth2.client.registration.zcrud.redirect-uri}") protected String redirectUri;
+    @Value("${app.key-cloak-logout-url}") protected String logoutUrl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     protected void handleListSuccess(AppResponse response, Page<T> pageRec){
@@ -74,25 +75,35 @@ public class BaseController<T>{
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
         map.add("grant_type", "authorization_code");
         map.add("code", code);
-        map.add("client_id", "zcrud");
+        map.add("client_id", clientID);
         map.add("redirect_uri", redirectUri);
         map.add("client_secret", clientSecret);
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        return restTemplate.postForEntity( tokenServiceAPIUrl, requestEntity,  ZToken.class ).getBody();
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    protected ZToken refreshToken(String refreshToken){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("grant_type", "refresh_token");
+        map.add("client_id", clientID);
+        map.add("client_secret", clientSecret);
+        map.add("refresh_token", refreshToken);
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
         return restTemplate.postForEntity( tokenServiceAPIUrl, requestEntity , ZToken.class ).getBody();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    protected void setAccessTokenInCookie(HttpServletResponse response, ZToken tokens){
-        Cookie atCookie = new Cookie("access_token", tokens.getAccessToken());
-        Cookie rtCookie = new Cookie("refresh_token", tokens.getRefreshToken());
-
-        atCookie.setMaxAge(tokens.getAccessTokenExpiry());
-        atCookie.setPath("/");
-        response.addCookie(atCookie);
-
-        rtCookie.setMaxAge(tokens.getRefreshTokenExpiry());
-        rtCookie.setPath("/");
-        response.addCookie(rtCookie);
-
+    protected String logoutToken(ZToken token){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBearerAuth(token.getAccessToken());
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("client_id", clientID);
+        map.add("client_secret", clientSecret);
+        map.add("refresh_token", token.getRefreshToken());
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        return restTemplate.postForEntity( logoutUrl, requestEntity , String.class ).getBody();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
