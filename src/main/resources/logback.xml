@@ -47,6 +47,7 @@
     <!-- LOG "org.apache*" at DEBUG level
     <logger name="org.apache" level="DEBUG" />
     <logger name="httpclient" level="DEBUG" />
-    <logger name="org.springframework.security" level="TRACE" />
     -->
+    <logger name="org.springframework.security" level="TRACE" />
+
 </configuration>

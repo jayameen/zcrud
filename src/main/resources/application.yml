@@ -19,6 +19,8 @@ app:
   database-type: mongo
   static-min-url: ${server.servlet.context-path}/assets
   file-service-base64-upload-api: http://localhost:8085/zfiles/api/object/base64
+  key-cloak-realm-url: https://uat.xindus.net/keycloak/realms/xindus
+  key-cloak-client-secret: 1puPsVD0ffzlxaG2r9oChEAnA5UhZvgU
   key-cloak-logout-url: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/logout
 
   mongo:
@@ -48,22 +50,22 @@ spring:
           zcrud:
             provider: keycloak
             client-id: zcrud
-            client-secret: 1puPsVD0ffzlxaG2r9oChEAnA5UhZvgU
+            client-secret: ${app.key-cloak-client-secret}
             authorization-grant-type: authorization_code
             redirect-uri: "http://localhost:8082/zcrud/login/authcode"
             scope: openid
         provider:
           keycloak:
-            authorization-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/auth
-            token-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/token
-            jwk-set-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/certs
+            authorization-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/auth
+            token-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/token
+            jwk-set-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/certs
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/auth/realms/jayameen
-          jwk-set-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/certs
-          introspection-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/token/introspect
+          issuer-uri: ${app.key-cloak-realm-url}
+          jwk-set-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/certs
+          introspection-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/token/introspect
         opaquetoken:
           client-id: zcrud
-          client-secret: 1puPsVD0ffzlxaG2r9oChEAnA5UhZvgU
-          issuer-uri: http://localhost:8080/auth/realms/jayameen
-          introspection-uri: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/token/introspect
+          client-secret: ${app.key-cloak-client-secret}
+          issuer-uri: ${app.key-cloak-realm-url}
+          introspection-uri: ${app.key-cloak-realm-url}/protocol/openid-connect/token/introspect

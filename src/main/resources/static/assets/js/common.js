@@ -130,9 +130,10 @@ var Common = {
         return 'Bearer '+ localStorage.getItem('access_token');
     },
     logout: function () {
-
         var refreshToken = localStorage.getItem('refresh_token');
         var jsonData     = {"refresh_token" : refreshToken, "access_token" : localStorage.getItem('access_token')};
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         if(refreshToken && refreshToken != ''){
             $.ajax({
                 type: "POST",
@@ -141,7 +142,6 @@ var Common = {
                 data: JSON.stringify(jsonData),
                 success: function (response) {
                     toastr.success("Logged Out!!");
-                    window.location.href = appPath;
                 },
                 error: function (response) {
                     toastr.error("Logout Failed! - Please try again!");
