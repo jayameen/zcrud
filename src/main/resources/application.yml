@@ -19,9 +19,9 @@ app:
   database-type: mongo
   static-min-url: ${server.servlet.context-path}/assets
   file-service-base64-upload-api: http://localhost:8085/zfiles/api/object/base64
-  key-cloak-realm-url: https://uat.xindus.net/keycloak/realms/xindus
+  key-cloak-realm-url: http://localhost:8080/auth/realms/jayameen
   key-cloak-client-secret: 1puPsVD0ffzlxaG2r9oChEAnA5UhZvgU
-  key-cloak-logout-url: http://localhost:8080/auth/realms/jayameen/protocol/openid-connect/logout
+  key-cloak-logout-url: ${key-cloak-realm-url}}/protocol/openid-connect/logout
 
   mongo:
     collections:

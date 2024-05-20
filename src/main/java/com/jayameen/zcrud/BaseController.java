@@ -3,17 +3,13 @@ package com.jayameen.zcrud;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayameen.zcrud.dto.AppResponse;
 import com.jayameen.zcrud.dto.FileRequest;
-import com.jayameen.zcrud.dto.ZToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -67,43 +63,6 @@ public class BaseController<T>{
             }
         }
         return fileUrl;
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    protected ZToken fetchAndSetToken(HttpServletRequest request, HttpServletResponse response, String code){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
-        map.add("grant_type", "authorization_code");
-        map.add("code", code);
-        map.add("client_id", clientID);
-        map.add("redirect_uri", redirectUri);
-        map.add("client_secret", clientSecret);
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        return restTemplate.postForEntity( tokenServiceAPIUrl, requestEntity,  ZToken.class ).getBody();
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    protected ZToken refreshToken(String refreshToken){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
-        map.add("grant_type", "refresh_token");
-        map.add("client_id", clientID);
-        map.add("client_secret", clientSecret);
-        map.add("refresh_token", refreshToken);
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        return restTemplate.postForEntity( tokenServiceAPIUrl, requestEntity , ZToken.class ).getBody();
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    protected String logoutToken(ZToken token){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBearerAuth(token.getAccessToken());
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
-        map.add("client_id", clientID);
-        map.add("client_secret", clientSecret);
-        map.add("refresh_token", token.getRefreshToken());
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        return restTemplate.postForEntity( logoutUrl, requestEntity , String.class ).getBody();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

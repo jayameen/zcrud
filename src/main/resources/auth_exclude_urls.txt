@@ -1,6 +1,8 @@
 /
 /error
 /login
+/api/login
+/api/login/authcode
 /api/refresh-token
 /api/logout
 /login/**
